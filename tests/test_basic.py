@@ -27,6 +27,16 @@ class TestBasic(unittest.TestCase):
     def test_goodrequired(self):
         Instance('ec2instance', ImageId="ami-xxxx", InstanceType="m1.small")
 
+    def test_extraattribute(self):
+
+        class ExtendedInstance(Instance):
+            def __init__(self, *args, **kwargs):
+                self.attribute = None
+                super(ExtendedInstance, self).__init__(*args, **kwargs)
+
+        instance = ExtendedInstance('ec2instance', attribute='value')
+        self.assertEqual(instance.attribute, 'value')
+
 
 def call_correct(x):
     return x
@@ -44,7 +54,7 @@ class FakeAWSObject(AWSObject):
         'callincorrect': (call_incorrect, False),
         'singlelist': (list, False),
         'multilist': ([bool, int, float], False),
-        'multituple': ((basestring, int), False),
+        'multituple': ((bool, int), False),
         'helperfun': (positive_integer, False),
     }
 
@@ -93,7 +103,7 @@ class TestValidators(unittest.TestCase):
             t.to_json()
 
     def test_tuples(self):
-        FakeAWSObject('fake', multituple='a')
+        FakeAWSObject('fake', multituple=True)
         FakeAWSObject('fake', multituple=10)
         with self.assertRaises(TypeError):
             FakeAWSObject('fake', multituple=0.1)
@@ -177,7 +187,7 @@ class TestUpdatePolicy(unittest.TestCase):
         t = UpdatePolicy('AutoScalingRollingUpdate', PauseTime='PT1M0S')
         d = json.loads(json.dumps(t, cls=awsencode))
         with self.assertRaises(KeyError):
-            _ = d['Properties']
+            d['Properties']
 
     def test_updatepolicy_dictname(self):
         t = UpdatePolicy('AutoScalingRollingUpdate', PauseTime='PT1M0S')
@@ -191,7 +201,7 @@ class TestOutput(unittest.TestCase):
         t = Output("MyOutput", Value="myvalue")
         d = json.loads(json.dumps(t, cls=awsencode))
         with self.assertRaises(KeyError):
-            _ = d['Properties']
+            d['Properties']
 
 
 class TestParameter(unittest.TestCase):
@@ -200,7 +210,7 @@ class TestParameter(unittest.TestCase):
         t = Parameter("MyParameter", Type="String")
         d = json.loads(json.dumps(t, cls=awsencode))
         with self.assertRaises(KeyError):
-            _ = d['Properties']
+            d['Properties']
 
 
 class TestProperty(unittest.TestCase):
@@ -214,7 +224,7 @@ class TestProperty(unittest.TestCase):
         )
         d = json.loads(json.dumps(t, cls=awsencode))
         with self.assertRaises(KeyError):
-            _ = d['Properties']
+            d['Properties']
 
 
 class TestDuplicate(unittest.TestCase):

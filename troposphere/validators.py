@@ -5,12 +5,10 @@
 
 
 def boolean(x):
-    if isinstance(x, bool):
-        return x
-    if x in [1, '1', 'true', 'True']:
-        return True
-    if x in [0, '0', 'false', 'False']:
-        return False
+    if x in [True, 1, '1', 'true', 'True']:
+        return "true"
+    if x in [False, 0, '0', 'false', 'False']:
+        return "false"
     raise ValueError
 
 
@@ -18,20 +16,21 @@ def integer(x):
     if isinstance(x, int):
         return x
     if isinstance(x, basestring):
-        return int(x)
+        int(x)
+        return x
 
 
 def positive_integer(x):
-    x = integer(x)
-    if x < 0:
+    p = integer(x)
+    if int(p) < 0:
         raise ValueError
     return x
 
 
 def integer_range(minimum_val, maximum_val):
     def integer_range_checker(x):
-        x = integer(x)
-        if x < minimum_val or x > maximum_val:
+        i = int(x)
+        if i < minimum_val or i > maximum_val:
             raise ValueError('Integer must be between %d and %d' % (
                 minimum_val, maximum_val))
         return x
@@ -46,7 +45,7 @@ def network_port(x):
     if isinstance(x, AWSHelperFn):
         return x
 
-    x = integer(x)
-    if x < -1 or x > 65535:
+    i = int(x)
+    if i < -1 or i > 65535:
         raise ValueError
     return x

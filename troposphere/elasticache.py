@@ -4,18 +4,19 @@
 # See LICENSE file for full license.
 
 from . import AWSObject, Ref
-from .validators import integer
+from .validators import boolean, integer
 
 
 class CacheCluster(AWSObject):
     type = "AWS::ElastiCache::CacheCluster"
 
     props = {
-        'AutoMinorVersionUpgrade': (bool, False),
+        'AutoMinorVersionUpgrade': (boolean, False),
         'CacheNodeType': (basestring, True),
         'CacheParameterGroupName': (basestring, False),
         'CacheSecurityGroupNames': ([basestring, Ref], False),
         'CacheSubnetGroupName': (basestring, False),
+        'ClusterName': (basestring, False),
         'Engine': (basestring, True),
         'EngineVersion': (basestring, False),
         'NotificationTopicArn': (basestring, False),

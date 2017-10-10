@@ -3,13 +3,36 @@
 #
 # See LICENSE file for full license.
 
-from . import AWSObject, AWSProperty
-
+from . import AWSObject, AWSProperty, Tags
+from .validators import boolean, integer
 
 WebServer = "WebServer"
 Worker = "Worker"
 WebServerType = "Standard"
 WorkerType = "SQS/HTTP"
+
+
+class MaxAgeRule(AWSProperty):
+    props = {
+      'DeleteSourceFromS3': (boolean, False),
+      'Enabled': (boolean, False),
+      'MaxAgeInDays': (integer, False),
+    }
+
+
+class MaxCountRule(AWSProperty):
+    props = {
+      'DeleteSourceFromS3': (boolean, False),
+      'Enabled': (boolean, False),
+      'MaxCount': (integer, False),
+    }
+
+
+class ApplicationVersionLifecycleConfig(AWSProperty):
+    props = {
+        'MaxAgeRule': (MaxAgeRule, False),
+        'MaxCountRule': (MaxCountRule, False),
+    }
 
 
 class SourceBundle(AWSProperty):
@@ -19,11 +42,17 @@ class SourceBundle(AWSProperty):
     }
 
 
-class ApplicationVersion(AWSProperty):
+class SourceConfiguration(AWSProperty):
     props = {
-        'Description': (basestring, False),
-        'SourceBundle': (SourceBundle, False),
-        'VersionLabel': (basestring, True),
+        'ApplicationName': (basestring, True),
+        'TemplateName': (basestring, True),
+    }
+
+
+class ApplicationResourceLifecycleConfig(AWSProperty):
+    props = {
+        'ServiceRole': (basestring, False),
+        'VersionLifecycleConfig': (ApplicationVersionLifecycleConfig, False),
     }
 
 
@@ -35,23 +64,37 @@ class OptionSettings(AWSProperty):
     }
 
 
-class ConfigurationTemplate(AWSProperty):
-    props = {
-        'TemplateName': (basestring, True),
-        'Description': (basestring, False),
-        'OptionSettings': (list, False),
-        'SolutionStackName': (basestring, False),
-    }
-
-
 class Application(AWSObject):
-    type = "AWS::ElasticBeanstalk::Application"
+    resource_type = "AWS::ElasticBeanstalk::Application"
 
     props = {
         'ApplicationName': (basestring, False),
-        'ApplicationVersions': (list, True),
-        'ConfigurationTemplates': (list, False),
         'Description': (basestring, False),
+        'ResourceLifecycleConfig': (ApplicationResourceLifecycleConfig, False),
+    }
+
+
+class ApplicationVersion(AWSObject):
+    resource_type = "AWS::ElasticBeanstalk::ApplicationVersion"
+
+    props = {
+        'ApplicationName': (basestring, True),
+        'Description': (basestring, False),
+        'SourceBundle': (SourceBundle, False),
+    }
+
+
+class ConfigurationTemplate(AWSObject):
+    resource_type = "AWS::ElasticBeanstalk::ConfigurationTemplate"
+
+    props = {
+        'ApplicationName': (basestring, True),
+        'Description': (basestring, False),
+        'EnvironmentId': (basestring, False),
+        'OptionSettings': ([OptionSettings], False),
+        'PlatformArn': (basestring, False),
+        'SolutionStackName': (basestring, False),
+        'SourceConfiguration': (SourceConfiguration, False),
     }
 
 
@@ -78,16 +121,17 @@ class Tier(AWSProperty):
 
 
 class Environment(AWSObject):
-    type = "AWS::ElasticBeanstalk::Environment"
+    resource_type = "AWS::ElasticBeanstalk::Environment"
 
     props = {
         'ApplicationName': (basestring, True),
         'CNAMEPrefix': (basestring, False),
         'Description': (basestring, False),
         'EnvironmentName': (basestring, False),
-        'OptionSettings': (list, False),
-        'OptionsToRemove': (list, False),
+        'OptionSettings': ([OptionSettings], False),
+        'PlatformArn': (basestring, False),
         'SolutionStackName': (basestring, False),
+        'Tags': (Tags, False),
         'TemplateName': (basestring, False),
         'Tier': (Tier, False),
         'VersionLabel': (basestring, False),

@@ -3,7 +3,7 @@
 #
 # See LICENSE file for full license.
 
-from . import AWSObject, AWSProperty, Tags
+from . import AWSObject, AWSProperty, If, Tags
 from .validators import (
     elb_name, exactly_one, network_port,
     tg_healthcheck_port, integer
@@ -78,6 +78,15 @@ class Listener(AWSObject):
     }
 
 
+class ListenerCertificate(AWSObject):
+    resource_type = "AWS::ElasticLoadBalancingV2::ListenerCertificate"
+
+    props = {
+        'Certificates': ([Certificate], True),
+        'ListenerArn': (basestring, True),
+    }
+
+
 class ListenerRule(AWSObject):
     resource_type = "AWS::ElasticLoadBalancingV2::ListenerRule"
 
@@ -136,4 +145,14 @@ class LoadBalancer(AWSObject):
             'SubnetMappings',
             'Subnets',
         ]
+
+        def check_if(names, props):
+            validated = []
+            for name in names:
+                validated.append(name in props and isinstance(props[name], If))
+            return all(validated)
+
+        if check_if(conds, self.properties):
+            return
+
         exactly_one(self.__class__.__name__, self.properties, conds)

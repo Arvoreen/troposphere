@@ -1,15 +1,75 @@
 import unittest
-from troposphere import Template
-from troposphere.serverless import Function, Api, SimpleTable
+from troposphere import Tags, Template
+from troposphere.s3 import Filter, Rules, S3Key
+from troposphere.serverless import (
+    Api, DeadLetterQueue, Function, FunctionForPackaging,
+    S3Event, S3Location, SimpleTable,
+)
 
 
 class TestServerless(unittest.TestCase):
+    def test_s3_location(self):
+        serverless_func = Function(
+            "SomeHandler",
+            Handler="index.handler",
+            Runtime="nodejs",
+            CodeUri=S3Location(
+                Bucket="mybucket",
+                Key="mykey",
+            )
+        )
+        t = Template()
+        t.add_resource(serverless_func)
+        t.to_json()
+
+    def test_tags(self):
+        serverless_func = Function(
+            "SomeHandler",
+            Handler="index.handler",
+            Runtime="nodejs",
+            CodeUri="s3://bucket/handler.zip",
+            Tags=Tags({
+                'Tag1': 'TagValue1',
+                'Tag2': 'TagValue2'
+            })
+        )
+        t = Template()
+        t.add_resource(serverless_func)
+        t.to_json()
+
+    def test_DLQ(self):
+        serverless_func = Function(
+            "SomeHandler",
+            Handler="index.handler",
+            Runtime="nodejs",
+            CodeUri="s3://bucket/handler.zip",
+            DeadLetterQueue=DeadLetterQueue(
+                Type='SNS',
+                TargetArn='arn:aws:sns:us-east-1:000000000000:SampleTopic'
+            )
+        )
+        t = Template()
+        t.add_resource(serverless_func)
+        t.to_json()
+
     def test_required_function(self):
         serverless_func = Function(
             "SomeHandler",
             Handler="index.handler",
             Runtime="nodejs",
             CodeUri="s3://bucket/handler.zip"
+        )
+        t = Template()
+        t.add_resource(serverless_func)
+        t.to_json()
+
+    def test_optional_auto_publish_alias(self):
+        serverless_func = Function(
+            "SomeHandler",
+            Handler="index.handler",
+            Runtime="nodejs",
+            CodeUri="s3://bucket/handler.zip",
+            AutoPublishAlias="alias"
         )
         t = Template()
         t.add_resource(serverless_func)
@@ -67,6 +127,80 @@ class TestServerless(unittest.TestCase):
         t = Template()
         t.add_resource(serverless_table)
         t.to_json()
+
+    def test_s3_filter(self):
+        t = Template()
+        t.add_resource(
+            Function(
+                "ProcessorFunction",
+                Handler='process_file.handler',
+                CodeUri='.',
+                Runtime='python3.6',
+                Policies='AmazonS3FullAccess',
+                Events={
+                    'FileUpload': S3Event(
+                        'FileUpload',
+                        Bucket="bucket",
+                        Events=['s3:ObjectCreated:*'],
+                        Filter=Filter(S3Key=S3Key(
+                            Rules=[
+                                Rules(Name="prefix", Value="upload/"),
+                                Rules(Name="suffix", Value=".txt"),
+                            ],
+                        ))
+                    )
+                }
+            )
+        )
+        t.to_json()
+
+    def test_policy_document(self):
+        t = Template()
+        t.add_resource(
+            Function(
+                "ProcessorFunction",
+                Handler='process_file.handler',
+                CodeUri='.',
+                Runtime='python3.6',
+                Policies="AmazonS3ReadOnly"
+            )
+        )
+        t.to_json()
+
+        t = Template()
+        t.add_resource(
+            Function(
+                "ProcessorFunction",
+                Handler='process_file.handler',
+                CodeUri='.',
+                Runtime='python3.6',
+                Policies=["AmazonS3FullAccess", "AmazonDynamoDBFullAccess"]
+            )
+        )
+        t.to_json()
+
+        t = Template()
+        t.add_resource(
+            Function(
+                "ProcessorFunction",
+                Handler='process_file.handler',
+                CodeUri='.',
+                Runtime='python3.6',
+                Policies={
+                    "Statement": [{
+                        "Effect": "Allow",
+                        "Action": ["s3:GetObject", "s3:PutObject"],
+                        "Resource": ["arn:aws:s3:::bucket/*"],
+                    }]
+                },
+            )
+        )
+        t.to_json()
+
+    def test_packaging(self):
+        func_req = Function.props['CodeUri'][1]
+        package_req = FunctionForPackaging.props['CodeUri'][1]
+        self.assertNotEqual(func_req, package_req)
 
 
 if __name__ == '__main__':

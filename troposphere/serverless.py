@@ -8,7 +8,13 @@ import types
 from . import AWSObject, AWSProperty
 from .awslambda import Environment, VPCConfig, validate_memory_size
 from .dynamodb import ProvisionedThroughput
+from .s3 import Filter
 from .validators import exactly_one, positive_integer
+try:
+    from awacs.aws import PolicyDocument
+    policytypes = (dict, list, basestring, PolicyDocument)
+except ImportError:
+    policytypes = (dict, list, basestring)
 
 assert types  # silence pyflakes
 
@@ -20,15 +26,25 @@ def primary_key_type_validator(x):
     return x
 
 
-def policy_validator(x):
-    if isinstance(x, types.StringTypes):
-        return x
-    elif isinstance(x, types.ListType):
-        return x
-    else:
-        raise ValueError("Policies must refer to a managed policy, a list of "
-                         + "policies, an IAM policy document, or a list of IAM"
-                         + " policy documents")
+class DeadLetterQueue(AWSProperty):
+    props = {
+        'Type': (basestring, False),
+        'TargetArn': (basestring, False)
+    }
+
+    def validate(self):
+        valid_types = ['SQS', 'SNS']
+        if ('Type' in self.properties and
+                self.properties['Type'] not in valid_types):
+            raise ValueError('Type must be either SQS or SNS')
+
+
+class S3Location(AWSProperty):
+    props = {
+        "Bucket": (basestring, True),
+        "Key": (basestring, True),
+        "Version": (basestring, False)
+    }
 
 
 class Function(AWSObject):
@@ -37,16 +53,34 @@ class Function(AWSObject):
     props = {
         'Handler': (basestring, True),
         'Runtime': (basestring, True),
-        'CodeUri': (basestring, True),
+        'CodeUri': ((S3Location, basestring), True),
+        'FunctionName': (basestring, False),
         'Description': (basestring, False),
         'MemorySize': (validate_memory_size, False),
         'Timeout': (positive_integer, False),
         'Role': (basestring, False),
-        'Policies': (policy_validator, False),
+        'Policies': (policytypes, False),
         'Environment': (Environment, False),
         'VpcConfig': (VPCConfig, False),
-        'Events': (dict, False)
+        'Events': (dict, False),
+        'Tags': (dict, False),
+        'Tracing': (basestring, False),
+        'KmsKeyArn': (basestring, False),
+        'DeadLetterQueue': (DeadLetterQueue, False),
+        'AutoPublishAlias': (basestring, False)
     }
+
+
+class FunctionForPackaging(Function):
+    """Render Function without requiring 'CodeUri'.
+
+    This exception to the Function spec is for use with the
+    `cloudformation/sam package` commands which add CodeUri automatically.
+    """
+
+    resource_type = Function.resource_type
+    props = Function.props.copy()
+    props['CodeUri'] = (props['CodeUri'][0], False)
 
 
 class Api(AWSObject):
@@ -91,7 +125,7 @@ class S3Event(AWSObject):
     props = {
         'Bucket': (basestring, True),
         'Events': (list, True),
-        'Filter': (basestring, False)
+        'Filter': (Filter, False)
     }
 
 

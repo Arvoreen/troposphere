@@ -1,12 +1,14 @@
 import unittest
-from troposphere import Parameter, Ref
+from troposphere import Parameter, Ref, NoValue
 from troposphere.validators import boolean, integer, integer_range
 from troposphere.validators import positive_integer, network_port
 from troposphere.validators import tg_healthcheck_port
 from troposphere.validators import s3_bucket_name, encoding, status
 from troposphere.validators import iam_path, iam_names, iam_role_name
 from troposphere.validators import iam_group_name, iam_user_name, elb_name
-from troposphere.validators import mutually_exclusive
+from troposphere.validators import mutually_exclusive, notification_type
+from troposphere.validators import notification_event, task_type
+from troposphere.validators import compliance_level, operating_system
 
 
 class TestValidators(unittest.TestCase):
@@ -148,13 +150,63 @@ class TestValidators(unittest.TestCase):
 
     def test_mutually_exclusive(self):
         conds = ['a', 'b', 'c']
-        mutually_exclusive('a', ['a'], conds)
-        mutually_exclusive('b', ['b'], conds)
-        mutually_exclusive('c', ['c'], conds)
+        mutually_exclusive('a', {"a": "apple"}, conds)
+        mutually_exclusive('b', {"b": "banana"}, conds)
+        mutually_exclusive('c', {"c": "carrot"}, conds)
         with self.assertRaises(ValueError):
-            mutually_exclusive('ac', ['a', 'c'], conds)
+            mutually_exclusive('ac', {"a": "apple", "c": "carrot"}, conds)
         with self.assertRaises(ValueError):
-            mutually_exclusive('abc', ['a', 'b', 'c'], conds)
+            mutually_exclusive(
+                'abc', {"a": "apple", "b": "banana", "c": "carrot"}, conds
+            )
+
+    def test_mutually_exclusive_novalue(self):
+        conds = ['a', 'b', 'c']
+        properties = {
+            'a': Ref("AWS::NoValue"),
+            'b': NoValue,
+            'c': "AWS::Region",
+        }
+
+        mutually_exclusive("a", properties, conds)
+
+    def test_compliance_level(self):
+        for s in ['CRITICAL', 'HIGH', 'MEDIUM', 'LOW', 'INFORMATIONAL',
+                  'UNSPECIFIED']:
+            compliance_level(s)
+        for s in ['crit', '', '%%', 'FORMATIONAL']:
+            with self.assertRaises(ValueError):
+                compliance_level(s)
+
+    def test_notification_event(self):
+        for l in [['All', 'InProgress', 'Success', 'TimedOut', 'Cancelled',
+                  'Failed'], ['InProgress', 'TimedOut']]:
+            notification_event(l)
+        for l in [['', 'timeout', '%'], ['Inprogress', '@ll']]:
+            with self.assertRaises(ValueError):
+                notification_event(l)
+
+    def test_notification_type(self):
+        for s in ['Command', 'Invocation']:
+            notification_type(s)
+        for s in ['foo', '', 'command', 'Iinvocation']:
+            with self.assertRaises(ValueError):
+                notification_type(s)
+
+    def test_operating_system(self):
+        for s in ['WINDOWS', 'AMAZON_LINUX', 'UBUNTU',
+                  'REDHAT_ENTERPRISE_LINUX']:
+            operating_system(s)
+        for s in ['', 'bar', 'AMAZONLINUX', 'LINUX']:
+            with self.assertRaises(ValueError):
+                operating_system(s)
+
+    def test_task_type(self):
+        for s in ['RUN_COMMAND', 'AUTOMATION', 'LAMBDA', 'STEP_FUNCTION']:
+            task_type(s)
+        for s in ['', 'foo', 'a', 'l@mbda', 'STEPFUNCTION']:
+            with self.assertRaises(ValueError):
+                task_type(s)
 
 
 if __name__ == '__main__':

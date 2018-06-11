@@ -13,7 +13,7 @@ class InputParallelism(AWSProperty):
     }
 
 
-class RecordColumns(AWSProperty):
+class RecordColumn(AWSProperty):
     props = {
         'Mapping': (basestring, False),
         'Name': (basestring, True),
@@ -50,7 +50,7 @@ class RecordFormat(AWSProperty):
 
 class InputSchema(AWSProperty):
     props = {
-        'RecordColumns': (RecordColumns, True),
+        'RecordColumns': ([RecordColumn], True),
         'RecordEncoding': (basestring, False),
         'RecordFormat': (RecordFormat, True),
     }
@@ -70,6 +70,19 @@ class KinesisStreamsInput(AWSProperty):
     }
 
 
+class InputLambdaProcessor(AWSProperty):
+    props = {
+        'ResourceARN': (basestring, True),
+        'RoleARN': (basestring, True),
+    }
+
+
+class InputProcessingConfiguration(AWSProperty):
+    props = {
+        'InputLambdaProcessor': (InputLambdaProcessor, False),
+    }
+
+
 class Input(AWSProperty):
     props = {
         'NamePrefix': (basestring, True),
@@ -77,6 +90,7 @@ class Input(AWSProperty):
         'InputSchema': (InputSchema, True),
         'KinesisFirehoseInput': (KinesisFirehoseInput, False),
         'KinesisStreamsInput': (KinesisStreamsInput, False),
+        'InputProcessingConfiguration': (InputProcessingConfiguration, False),
     }
 
 
@@ -111,11 +125,19 @@ class KinesisStreamsOutput(AWSProperty):
     }
 
 
+class LambdaOutput(AWSProperty):
+    props = {
+        'ResourceARN': (basestring, True),
+        'RoleARN': (basestring, True),
+    }
+
+
 class Output(AWSProperty):
     props = {
         'DestinationSchema': (DestinationSchema, True),
         'KinesisFirehoseOutput': (KinesisFirehoseOutput, False),
         'KinesisStreamsOutput': (KinesisStreamsOutput, False),
+        'LambdaOutput': (LambdaOutput, False),
         'Name': (basestring, True),
     }
 
@@ -125,13 +147,13 @@ class ApplicationOutput(AWSObject):
 
     props = {
         'ApplicationName': (basestring, True),
-        'Output': ([Output], True),
+        'Output': (Output, True),
     }
 
 
 class ReferenceSchema(AWSProperty):
     props = {
-        'RecordColumns': (RecordColumns, True),
+        'RecordColumns': ([RecordColumn], True),
         'RecordEncoding': (basestring, False),
         'RecordFormat': (RecordFormat, True),
     }

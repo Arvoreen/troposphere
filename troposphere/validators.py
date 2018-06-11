@@ -195,9 +195,11 @@ def iam_group_name(group_name):
 
 
 def mutually_exclusive(class_name, properties, conditionals):
+    from . import NoValue
+
     found_list = []
     for c in conditionals:
-        if c in properties:
+        if c in properties and not properties[c] == NoValue:
             found_list.append(c)
     seen = set(found_list)
     specified_count = len(seen)
@@ -217,6 +219,12 @@ def exactly_one(class_name, properties, conditionals):
     return specified_count
 
 
+def check_required(class_name, properties, conditionals):
+    for c in conditionals:
+        if c not in properties:
+            raise ValueError("Resource %s required in %s" % c, class_name)
+
+
 def json_checker(name, prop):
     from . import AWSHelperFn
 
@@ -231,3 +239,103 @@ def json_checker(name, prop):
         return prop
     else:
         raise ValueError("%s must be a str or dict" % name)
+
+
+def notification_type(notification):
+    valid_notifications = ['Command', 'Invocation']
+    if notification not in valid_notifications:
+        raise ValueError(
+            'NotificationType must be one of: "%s"' % (
+                ', '.join(valid_notifications)
+            )
+        )
+    return notification
+
+
+def notification_event(events):
+    valid_events = ['All', 'InProgress', 'Success', 'TimedOut', 'Cancelled',
+                    'Failed']
+    for event in events:
+        if event not in valid_events:
+            raise ValueError(
+                'NotificationEvents must be at least one of: "%s"' % (
+                    ', '.join(valid_events)
+                )
+            )
+    return events
+
+
+def task_type(task):
+    valid_tasks = ['RUN_COMMAND', 'AUTOMATION', 'LAMBDA', 'STEP_FUNCTION']
+    if task not in valid_tasks:
+        raise ValueError(
+            'TaskType must be one of: "%s"' % (
+                ', '.join(valid_tasks)
+            )
+        )
+    return task
+
+
+def compliance_level(level):
+    valid_levels = ['CRITICAL', 'HIGH', 'MEDIUM', 'LOW', 'INFORMATIONAL',
+                    'UNSPECIFIED']
+    if level not in valid_levels:
+        raise ValueError(
+            'ApprovedPatchesComplianceLevel must be one of: "%s"' % (
+                ', '.join(valid_levels)
+            )
+        )
+    return level
+
+
+def operating_system(os):
+    valid_os = ['WINDOWS', 'AMAZON_LINUX', 'UBUNTU', 'REDHAT_ENTERPRISE_LINUX',
+                'SUSE', 'CENTOS']
+    if os not in valid_os:
+        raise ValueError(
+            'OperatingSystem must be one of: "%s"' % (
+                ', '.join(valid_os)
+            )
+        )
+    return os
+
+
+def vpn_pre_shared_key(key):
+    pre_shared_key_match_re = compile(
+        r'^(?!0)([A-Za-z0-9]|\_|\.){8,64}$'
+    )
+    if not pre_shared_key_match_re.match(key):
+        raise ValueError(
+            '%s is not a valid key.'
+            ' Allowed characters are alphanumeric characters and ._. Must'
+            ' be between 8 and 64 characters in length and cannot'
+            ' start with zero (0).' % key
+        )
+    return(key)
+
+
+def vpn_tunnel_inside_cidr(cidr):
+    reserved_cidrs = [
+        '169.254.0.0/30',
+        '169.254.1.0/30',
+        '169.254.2.0/30',
+        '169.254.3.0/30',
+        '169.254.4.0/30',
+        '169.254.5.0/30',
+        '169.254.169.252/30'
+    ]
+    cidr_match_re = compile(
+        r"^169\.254\.(?:25[0-5]|2[0-4]\d|[01]?\d\d?)"
+        r"\.(?:25[0-5]|2[0-4]\d|[01]?\d\d?)\/30$"
+    )
+    if cidr in reserved_cidrs:
+        raise ValueError(
+            'The following CIDR blocks are reserved and cannot be used: "%s"' %
+            (', '.join(reserved_cidrs))
+        )
+    elif not cidr_match_re.match(cidr):
+        raise ValueError(
+            '%s is not a valid CIDR.'
+            ' A size /30 CIDR block from the 169.254.0.0/16 must be specified.'
+            % cidr)
+    return(cidr)

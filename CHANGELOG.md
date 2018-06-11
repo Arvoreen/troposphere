@@ -1,3 +1,190 @@
+## 2.3.0 (2018-05-26)
+
+- Allow Refs to be hashable using their data (#1053)
+- Add AWS::Budgets
+- Add new AWS::ServiceCatalog resources
+- Add Policy to ApiGateway::RestApi
+- Add ServiceLinkedRoleARN to AutoScaling::AutoScalingGroup
+- Add LaunchConfigurationName to AutoScaling::LaunchConfiguration
+- Add Edition to DirectoryService::MicrosoftAD
+- Add PointInTimeRecoverySpecification to DynamoDB::Table
+- Add ServiceRegistries to ECS::Service
+- Add HealthCheck to ECS::TaskDefinition ContainerDefinition
+- Add EncryptionAtRestOptions to Elasticsearch::Domain
+- Add MaxSessionDuration ti IAM::Role
+- Add SplunkDestinationConfiguration to KinesisFirehose::DeliveryStream
+- StartingPosition is no longer required in Lambda::EventSourceMapping
+- Add DefaultValue to Logs::MetricFilter MetricTransformation
+- Add OutputLocation to SSM::Association
+- Add AutoScaling and EC2  LaunchTemplate support (#1038)
+- Add LaunchTemplate to EC2::Instance
+- Adding ECS Container Healthchecks tests (#1024)
+- Rename ActionTypeID to ActionTypeId in CodePipeline
+
+## 2.2.2 (2018-05-23)
+
+- Allow up to 50:1 ratio for iops and allocated storage
+- Correct Spot Fleet TagSpecifications (#1010)
+- Change GetCidr to Cidr (Fixes #1013)
+- Add missing OpsWorks::Instance properties (Fixes #1014)
+- Adding SUSE to list of operating systems for SSM (#1015)
+- Updates for latest pycodestyle warnings
+- Add AWS::AppSync
+- Add AWS::ServiceCatalog
+- Special case Tags support in gen.py
+- Add constants for EC2 C5 instance types (#1025)
+- Update guardduty.py (#1037)
+- Add OpenIdConnectConfig to AppSync::GraphQLApi
+- Update AWS Config features (updates #1022)
+- Updated appsync apikey expires to be an int. (#1040)
+- Fix AutoScalingRole in EMR: Fixes #984 (#1036)
+- Rename SES Template to EmailTemplate (#1047)
+- Add GuardDuty::Filter
+- Remove python 3.3 support since it's EOL (#1049)
+- Corrected the description of NatGateway (#1005)
+- Update deprecated modules (#1007)
+- Updared CodeBuild Source Options (#1017)
+- Allow Ref's to test equality against their data (#1048)
+- Update to cfn-flip 1.0.2 (#1003)
+- Eliminate infinite loop when pickle loads BaseAWSObject and objects derived from it. (#1016)
+- Allow multiple NoValue properties in mutually_exclusive (#1050)
+
+
+## 2.2.1 (2018-03-10)
+- type is not required for EnvironmentVariable (#975)
+- Properly handle list objects used with DependsOn (Fixes #982)
+- Explicitly convert allocated_storage to integer before using it in comparisons (#983)
+- Allow CreationPolicy override of props on WaitCondition (#988)
+- "JobDefinitionName" property in JobDefinition class is not required (#995)
+- ApiGateway::DomainName CertificateArn fix (#996)
+- Tags support for SSM documents #999 (#1000)
+- Add SSESpecification to DynamoDB::Table (#981)
+- Add GitCloneDepth and InsecureSsl to CodeBuild Source
+- Add Trippers property to CodeBuild::Project
+- Add aurora-mysql to list of valid RDS engines
+- Batch ContainerProperties is required
+- Add Regions to Route53 HealthCheckConfiguration
+- Add ClusterIdentifier to Redshift::Cluster
+- Add DBClusterIdentifier to RDS::DBCluster
+- Add TagSpecification to EC2::SpotFleet LaunchSpecifcations
+- Add DisableScaleIn to ApplicationAutoScaling
+- Add ApiKeySourceType and MinimumCompressionSize to ApiGateway::RestApi
+- Add AutoScalingGroupName to AutoScaling::AutoScalingGroup
+- Add AWS::ApiGateway::VpcLink
+- Add AWS::GuardDuty::Master and AWS::GuardDuty::Member
+- Add AWS::SES
+- Add GetCidr function for Fn::GetCidr
+
+## 2.2.0 (2018-01-29)
+- Add AWS::Inspector
+- Add AWS::ServiceDiscovery
+- Add InputProcessingConfiguration to KinesisAnalytics::Application
+- EndpointConfiguration in ApiGateway::DomainName is not required
+- Allow setting Subnets and SubnetMappings properties on ELBv2 LoadBalancers (#934)
+- increase lambda memory limit to support up to 3008 MB (#936)
+- Stop validation if CodeBuild Source Type is a Ref (#940)
+- Added support for AutoPublishAlias to AWS::Serverless::Function as specified https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md (#941)
+- Add resource_type value and unit tests for guardduty `AWSObject`s (#945)
+- Added elasticsearch instance types for m4, c4 and r4 generations (#948)
+- Correct type in API Gateway GatewayResponse type (#950)
+- Fixes the lifecyclepolicy problem reported at Issue #953 (#954)
+- Add constants for EC2 M5 instance types (#955)
+- Adding support for Block Device Mapping V2 (#960)
+- Add support for Policy Document in SAM template. (#961)
+- Stab at documenting Troposphere basics (#963)
+- Adding HealthCheckGracePeriodSeconds into ECS Service (#966)
+- Add AllowedPattern to Parameter (#968)
+- Add long form parameter to to_yaml (#972)
+- Use S3.Filter for the serverless S3Event Filter property
+- Remove erroneous print in tests/test_serverless.py
+- Add FunctionForPackaging class to serverless
+- Add AssociationName to AWS::SSM::Association
+- Update S3::Bucket with 20180123 property changes
+- Add DBSubnetGroupName to AWS::RDS::DBSubnetGroup
+- Add ReservedConcurrentExecutions to AWS:Lambda:Function
+- Add StreamEncryption to AWS::Kinesis::Stream
+- Add LambdaOutput to KinesisAnalytics ApplicationOutput property
+- Update required fields in IoT TopicRule DynamoDBAction
+- Add validator for InstanceTenancy in EC2::VPC
+- Add CreditSpecification and ElasticGpuSpecifications to EC2::Instance
+
+## 2.1.2 (2017-12-03)
+- In SpotFleet::SpotFleetRequestConfigData SpotPrice is optional
+- Add RoutingConfig to AWS::Lambda::Alias
+- Update AWS::CodeDeploy
+- Add CodeDeployLambdaAliasUpdate to UpdatePolicy
+- Add AWS::GuardDuty
+- Add AWS::Cloud9
+- Add initial python resource spec generator
+- Update AWS::CodeBuild::Project to 20171201 changes
+- Change AWS::Batch::ComputeResources.Tags type to dict (#867)
+- Update README for YAML template (#925)
+- Typo fix in examples/ElastiCacheRedis.py (#926)
+- Adds Fargate support to ECS types (#929)
+- Fix SSM NotificationConfig validator type (#930)
+- Fix SQS::Queue validation in the case of no QueueName specified (#931)
+
+## 2.1.1 (2017-11-26)
+- Add support for VPCOptions in ElasticSearch (#862)
+- Add Description property for security group ingress and egress (#910)
+- Add QueryLoggingConfig to Route53::HostedZone
+- Add SourceRegion to RDS::DBInstance
+- Add RootVolumeSize and caleDownBehavior to EMR::Cluster
+- Add new properties to ElastiCache::ReplicationGroup
+- Add LinuxParameters to ECS::TaskDefinition ContainerDefinitions
+- Add LifecyclePolicy to ECR::Repository
+- Add ScheduledActions to ApplicationAutoScaling::ScalableTarget
+- Add new properties into ApiGateway
+
+## 2.1.0 (2017-11-19)
+- Output yaml (to_yaml) using cfn_flip (Fixes #567)
+- Allow AWSHelperFn for CodeCommit Trigger Event(s) (#869)
+- Adding the AWS::Glue resources (#872)
+- Use a list for Serverless::Function Tags (#873)
+- Support ProcessingConfiguration for Elasticsearch and Redshift (#876)
+- Fixes incorrect class definition. (#877)
+- Add TargetGroupInfo to DeploymentGroup #884 (#895)
+- Reverting #810 as AWS has changed the casing again (#896)
+- Add EMR Cluster MasterInstanceFleet and CoreInstanceFleet properties (#897)
+- Add EMR Cluster CustomAmiId (#888) (#898)
+- Add SecurityGroupRule Description property (#885) (#899)
+- Add support for tags in AWS::KMS::Key. (#900)
+- Adding OriginReadTimeout aka OriginResponseTimeout to cloudfront origin settings (#901)
+- Added property for OriginKeepaliveTimeout
+- Add CloudFrontOriginAccessIdentity type (#903)
+- Added support for VpnTunnelOptionsSpecifications (#904)
+- Allow ref on Parameter (#905)
+- Adds Tags to Cloudfront Distribution (#906)
+- CloudFront: add IPV6Enabled property for DistributionConfig (#908)
+- Add OptionVersion to RDS:OptionConfigurations
+- Add Tags to OpsWorks Layer and Stack
+- Add LifecycleHookSpecification in AutoScalingGroup
+- Add AmazonSideAsn to EC2::VPNGateway
+- Add StateMachineName to StepFunctions::StateMachine
+- Change KMS::Key to accept a standard Tags
+- Add LambdaFunctionAssociations to CloudFront CacheBehaviors
+- Add ResourceName to elasticbeanstalk OptionSettings
+- Add AnalyticsConfigurations and InventoryConfigurations to S3::Bucket
+- Add RequestValidatorId and OperationName to ApiGateway::Method
+- Add deprecation warning for StageName in ApiGateway StageDescription
+- Add AWS::CloudFront::StreamingDistribution
+
+## 2.0.2 (2017-10-23)
+- Set EC2 BlockDeviceMapping NoDevice property to type dict (#866)
+
+## 2.0.1 (2017-10-21)
+- Allow s3.Bucket AccessControl to be an AWSHelperFn
+- Add AWS::ElasticLoadBalancingV2::ListenerCertificate
+- Add serverless FunctionName and change how Tags are implemented
+- Make AdjustmentType an optional property of ScalingPolicy as it is not used/supported for target (#849)
+- Add maintenance window for SSM (#851)
+- Add Tags, Tracing, KmsKeyArn, DLQ to serverless(SAM) (#853)
+- Add new AWS::SSM resources (#854)
+- EC2 NoDevice should be type boolean not dict (#858)
+- Fixes RecordColumns cardinality for InputSchema and ReferenceSchema (#859)
+- Make AWS::Batch::JobQueue::JobQueueName optional (#860)
+- Fixes ApplicationOutput/Output cardinality (#863)
+
 ## 2.0.0 (2017-10-07)
 - Note: the s3.Bucket change (#844) *may* cause a breaking change for non-named arguments.
 - Add DefinitionBody to serverless API (#822)

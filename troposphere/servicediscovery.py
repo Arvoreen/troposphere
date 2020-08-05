@@ -3,7 +3,7 @@
 #
 # See LICENSE file for full license.
 
-from . import AWSObject, AWSProperty
+from . import AWSObject, AWSProperty, Tags
 
 
 class Instance(AWSObject):
@@ -22,6 +22,7 @@ class PrivateDnsNamespace(AWSObject):
     props = {
         'Description': (basestring, False),
         'Name': (basestring, True),
+        'Tags': (Tags, False),
         'Vpc': (basestring, True),
     }
 
@@ -32,6 +33,7 @@ class PublicDnsNamespace(AWSObject):
     props = {
         'Description': (basestring, False),
         'Name': (basestring, True),
+        'Tags': (Tags, False),
     }
 
 
@@ -59,7 +61,8 @@ class DnsRecord(AWSProperty):
 class DnsConfig(AWSProperty):
     props = {
         'DnsRecords': ([DnsRecord], True),
-        'NamespaceId': (basestring, True),
+        'NamespaceId': (basestring, False),
+        'RoutingPolicy': (basestring, False),
     }
 
 
@@ -68,8 +71,20 @@ class Service(AWSObject):
 
     props = {
         'Description': (basestring, False),
-        'DnsConfig': (DnsConfig, True),
+        'DnsConfig': (DnsConfig, False),
         'HealthCheckConfig': (HealthCheckConfig, False),
         'HealthCheckCustomConfig': (HealthCheckCustomConfig, False),
         'Name': (basestring, False),
+        'NamespaceId': (basestring, False),
+        'Tags': (Tags, False),
+    }
+
+
+class HttpNamespace(AWSObject):
+    resource_type = "AWS::ServiceDiscovery::HttpNamespace"
+
+    props = {
+        'Description': (basestring, False),
+        'Name': (basestring, True),
+        'Tags': (Tags, False),
     }

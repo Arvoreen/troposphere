@@ -19,7 +19,9 @@ Default = 'Default'
 OldestInstance = 'OldestInstance'
 NewestInstance = 'NewestInstance'
 OldestLaunchConfiguration = 'OldestLaunchConfiguration'
+OldestLaunchTemplate = 'OldestLaunchTemplate'
 ClosestToNextInstanceHour = 'ClosestToNextInstanceHour'
+AllocationStrategy = 'AllocationStrategy'
 
 
 class Tag(AWSHelperFn):
@@ -61,7 +63,7 @@ class Tags(AWSHelperFn):
 class LifecycleHookSpecification(AWSProperty):
     props = {
         'DefaultResult': (basestring, False),
-        'HeartbeatTimeout': (basestring, False),
+        'HeartbeatTimeout': (integer, False),
         'LifecycleHookName': (basestring, True),
         'LifecycleTransition': (basestring, True),
         'NotificationMetadata': (basestring, False),
@@ -129,6 +131,38 @@ class LaunchTemplateSpecification(AWSProperty):
         exactly_one(self.__class__.__name__, self.properties, template_ids)
 
 
+class InstancesDistribution(AWSProperty):
+    props = {
+        'OnDemandAllocationStrategy': (basestring, False),
+        'OnDemandBaseCapacity': (integer, False),
+        'OnDemandPercentageAboveBaseCapacity': (integer, False),
+        'SpotAllocationStrategy': (basestring, False),
+        'SpotInstancePools': (integer, False),
+        'SpotMaxPrice': (basestring, False),
+    }
+
+
+class LaunchTemplateOverrides(AWSProperty):
+    props = {
+        'InstanceType': (basestring, False),
+        'WeightedCapacity': (basestring, False),
+    }
+
+
+class LaunchTemplate(AWSProperty):
+    props = {
+        'LaunchTemplateSpecification': (LaunchTemplateSpecification, True),
+        'Overrides': ([LaunchTemplateOverrides], True),
+    }
+
+
+class MixedInstancesPolicy(AWSProperty):
+    props = {
+        'InstancesDistribution': (InstancesDistribution, False),
+        'LaunchTemplate': (LaunchTemplate, True),
+    }
+
+
 class AutoScalingGroup(AWSObject):
     resource_type = "AWS::AutoScaling::AutoScalingGroup"
 
@@ -145,9 +179,11 @@ class AutoScalingGroup(AWSObject):
         'LifecycleHookSpecificationList':
             ([LifecycleHookSpecification], False),
         'LoadBalancerNames': (list, False),
+        'MaxInstanceLifetime': (integer, False),
         'MaxSize': (integer, True),
         'MetricsCollection': ([MetricsCollection], False),
         'MinSize': (integer, True),
+        'MixedInstancesPolicy': (MixedInstancesPolicy, False),
         'NotificationConfigurations': ([NotificationConfigurations], False),
         'PlacementGroup': (basestring, False),
         'ServiceLinkedRoleARN': (basestring, False),
@@ -170,7 +206,7 @@ class AutoScalingGroup(AWSObject):
                     min_instances = rolling_update.properties.get(
                         "MinInstancesInService", "0")
                     is_min_no_check = isinstance(
-                        min_instances, (FindInMap, Ref)
+                        min_instances, (If, FindInMap, Ref)
                     )
                     is_max_no_check = isinstance(self.MaxSize,
                                                  (If, FindInMap, Ref))

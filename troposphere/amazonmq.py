@@ -3,7 +3,7 @@
 #
 # See LICENSE file for full license.
 
-from . import AWSObject, AWSProperty
+from . import AWSObject, AWSProperty, Tags
 from .validators import boolean, integer
 
 
@@ -11,6 +11,13 @@ class ConfigurationId(AWSProperty):
     props = {
         'Id': (basestring, True),
         'Revision': (integer, True),
+    }
+
+
+class EncryptionOptions(AWSProperty):
+    props = {
+        'KmsKeyId': (basestring, False),
+        'UseAwsOwnedKey': (boolean, True),
     }
 
 
@@ -47,6 +54,7 @@ class Broker(AWSObject):
         'Users': ([User], True),
         'Configuration': (ConfigurationId, False),
         'DeploymentMode': (basestring, True),
+        'EncryptionOptions': (EncryptionOptions, False),
         'EngineType': (basestring, True),
         'EngineVersion': (basestring, True),
         'HostInstanceType': (basestring, True),
@@ -55,6 +63,7 @@ class Broker(AWSObject):
         'PubliclyAccessible': (boolean, True),
         'SecurityGroups': ([basestring], False),
         'SubnetIds': ([basestring], False),
+        'Tags': ((Tags, list), False),
     }
 
 
@@ -67,4 +76,13 @@ class Configuration(AWSObject):
         'EngineType': (basestring, True),
         'EngineVersion': (basestring, True),
         'Name': (basestring, True),
+    }
+
+
+class ConfigurationAssociation(AWSObject):
+    resource_type = "AWS::AmazonMQ::ConfigurationAssociation"
+
+    props = {
+        'Broker': (basestring, True),
+        'Configuration': (ConfigurationId, True),
     }
